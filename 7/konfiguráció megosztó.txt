@@ -1,0 +1,18 @@
+Konfiguráció
+-felhasználó
+-adatok
+-like, dislike
+-rendezés
+
+egy konfiguráció
+-cardban
+-felhasználónév
+-táblázatban az alkatrészek
+-színes fel és le mutató hüvelykujj
+
+adattábla
+-id
+-felh_id
+-konfig -> textként
+-like
+-dislike
