@@ -69,6 +69,10 @@ class Webshop
 
   public function NavbarInsert()
   {
+    $fn="";
+    if(isset($_SESSION['fnev'])){
+      $fn=$_SESSION['fnev'];
+    }
     echo "
           <nav class='navbar navbar-expand-sm bg-body fixed'>
               <div class='container'>
@@ -96,7 +100,7 @@ class Webshop
                               <a class='nav-link' href='login.php'>Bejelentkezés</a>
                           </li>
                           <li class='nav-item'>
-                               <a class='nav-link' href='index.php'> {$_SESSION['fnev']}</a>  
+                               <a class='nav-link' href='index.php'>$fn</a>  
                            </li>
                       </ul>
                   </div>
@@ -106,12 +110,13 @@ class Webshop
 
   public function FooterInsert()
   {
+    $ev = date('Y');
     echo "
-      <div class='le'>
-        <a href='index.php'>TornadoPC</a>
-        <p>Dallos Ruben, Herédi Gábor</p>
-        <p>2024</p>
-      </div>
+    <footer class='le bg-info'>      
+        <a class='text-center' href='index.php'><img src='4703487.png' class='img-fluid kisKep' alt='logo'> TornadoPC</a>
+        <p class='text-center'>Dallos Ruben, Herédi Gábor</p>
+        <p class='text-center'>$ev</p>
+    </footer>
    ";
   }
 
@@ -121,7 +126,7 @@ class Webshop
         $sqlKategoriak = 'SELECT * FROM termek_kategoriak';
         $kategoriak = $this->SqlAssoc($sqlKategoriak);
     */
-    $lapozas[] = $this->Page($p, 3);
+    $lapozas[] = $this->Page($p, 6);
 
     $egyoldalon = (int) $lapozas[0][0];
     $start = (int) $lapozas[0][1];
@@ -148,7 +153,7 @@ class Webshop
       }
       echo '</div>';
     }
-    if (isset($_POST['kategoria_id'])) {  //kell-e igy???
+    if (isset($_POST['kategoria_id'])) {  //kell-e igy??? vagy ugy mint AddToCart()
       return $_POST['kategoria_id'];
     }
   }
@@ -192,7 +197,7 @@ class Webshop
                     </div>
                     <h5 class='card-title'>{$termek['megn']}</h5>
                     <div class='text-center my-4'>
-                        <a href='#' class='btn btn-info'>Vásárlás</a>
+                        <a href='/' class='btn btn-info'>Vásárlás</a>
                     </div>
                     <div class='sor'>
                        ";

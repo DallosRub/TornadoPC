@@ -303,9 +303,17 @@ p {
 .egysor {
   display: inline-flex;
 }
+.kisKep{
+  width: 50px;
+}
+
+.footernek{
+  position: relative;
+  height: 200px;
+}
 .le{
-  width: 40%;
-  display: block;
+  width: 50%;
+  margin-top: 30px;
   margin-right: auto;
   margin-left: auto;
 }

@@ -1,8 +1,8 @@
 <?php
-    session_start();
-    ob_start();
-    require_once "fuggvenyek.php";
-    $webshop = new Webshop();
+session_start();
+ob_start();
+require_once "fuggvenyek.php";
+$webshop = new Webshop();
 ?>
 <!DOCTYPE html>
 <html lang="hu">
@@ -18,13 +18,12 @@
             <input placeholder="Keresés..." type="search" class="input">
             <br>
             <div class="border">
-            <?php $webshop->FooterInsert(); ?>
 
             </div>
         </div>
         <div class="blue-bg">
             <?php
-                $webshop->NavbarInsert();
+            $webshop->NavbarInsert();
             ?>
             <div class='text-center my-4'>
 
@@ -39,12 +38,12 @@
             <?php
             /*bootstrap accordion*/
             if (isset($_POST['a'])) {
-                $p = isset($_GET['p']) ? (int)$_GET['p'] : 1;
+                $p = isset($_GET['p']) ? (int) $_GET['p'] : 1;
                 if ($_POST['a'] === 'osszes_termek') {
                     $webshop->ProductsInsert($p);
                 }
             } else {
-                $p = isset($_GET['p']) ? (int)$_GET['p'] : 1;
+                $p = isset($_GET['p']) ? (int) $_GET['p'] : 1;
                 $katId = $webshop->CategoriesInsert($p);
                 if (isset($_POST['kategoria_id'])) {
                     $webshop->ProductsInsert($p, $katId);
@@ -52,7 +51,11 @@
             }
             $webshop->AddToCart();
             ?>
+        </div>
 
+        <div class="footernek text-center">
+            
+            <?php $webshop->FooterInsert(); ?>
         </div>
         <!-- <script>
             window.addEventListener('DOMContentLoaded', function () {
