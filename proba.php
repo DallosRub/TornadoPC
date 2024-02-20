@@ -6,6 +6,7 @@ $webshop = new Webshop();
 ?>
 <!DOCTYPE html>
 <html lang="hu">
+
 <head>
     <?php $webshop->headInsert(); ?>
 </head>
@@ -24,15 +25,7 @@ $webshop = new Webshop();
                 </div>
                 <div class="col-lg-9">
                     <div class="content">
-                    <h1>Tornado PC</h1>
-                        <?php 
-                            echo $_GET['id'].", ".$_SESSION['katId'];
-                            $_SESSION['termekId'] = $_GET['id'];
-                            $webshop->productInsert($_GET['id']);
-                            
-                            echo $_SESSION['katId'].", ".$_SESSION['termekId'];
-                            $webshop->addToCart();
-                        ?>
+                        
                     </div>
                 </div>
             </div>
@@ -43,5 +36,6 @@ $webshop = new Webshop();
     </footer>
 
 </body>
+
 </html>
 <?php ob_end_flush(); ?>
