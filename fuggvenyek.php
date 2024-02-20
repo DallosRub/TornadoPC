@@ -98,9 +98,14 @@ class Webshop
                   <div class='collapse navbar-collapse'>
                       <ul class='navbar-nav ms-auto'>
                           <li class='nav-item'>
-                              <a class='nav-link' href='kosar.php'>Kosár</a>
+                              <a class='nav-link' href='konfig.php'>Konfigurációk</a>  
+                          </li>      
+                          <li class='nav-item'>
+                              <a class='nav-link' href='konfig_ossze.php'>Konfiguráció összerakó</a>  
                           </li>
-  
+                          <li class='nav-item'>
+                              <a class='nav-link' href='kosar.php'>Kosár</a>
+                          </li>                          
                           <li class='nav-item'>
                               <a class='nav-link' href='login.php'>Bejelentkezés</a>
                           </li>
@@ -177,11 +182,14 @@ class Webshop
   </div>
 </div>";
     }
+
     /*if (isset($_POST['kategoria_id'])){
+
       return $_POST['kategoria_id'];
     }*/
   }
   public function categoriesInsert()
+
   {
     echo "
     <div class='accordion' id='accordionExample'>";
@@ -198,6 +206,7 @@ class Webshop
   }
   public function productsInsert($p, $kategoria_id = null)
   {
+
     $lapozas = $this->page($p, 3);
 
     $egyoldalon = (int) $lapozas[0];
@@ -233,7 +242,9 @@ class Webshop
                         <a href='termek.php?id={$termek['id']}' class='btn btn-info'>Vásárlás</a>
                     </div>
                     <div class='sor'>
+
                        ";
+
       $this->postButton('kosar', $kategoria_id, $termek['id']);
       $this->postButton('kedvencek', $kategoria_id, $termek['id']);
       echo "
@@ -355,6 +366,8 @@ class Webshop
         $this->hiddenInput('kosarba_helyezes', $e2);
         echo "<button type='submit' class='btn'><img class='kosar' src='shopping-cart.png'></button>
           </form>";
+
+         // $_SESSION['kosarba_helyezes'] = $_POST['kosarba_helyezes'];
         break;
       case 'kedvencek':
         echo "

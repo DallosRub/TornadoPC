@@ -26,12 +26,16 @@ $webshop = new Webshop();
                     <div class="content">
                     <h1>Tornado PC</h1>
                         <?php
+
                         /*if (isset($_POST['a'])) {
+
                             $p = isset($_GET['p']) ? (int) $_GET['p'] : 1;
                             if ($_POST['a'] === 'osszes_termek') {
                                 $webshop->productsInsert($p);
                             }
                         }
+
+
                         else{*/
                             $p = isset($_GET['p']) ? (int) $_GET['p'] : 1;
                             $webshop->productsInsert($p, $_POST['kategoria_id']);
@@ -44,6 +48,7 @@ $webshop = new Webshop();
                                 //$_SESSION['kat_id']=null;
                             //}
                         //}
+
                         $webshop->addToCart();
                         ?>
                     </div>

@@ -34,6 +34,7 @@ $webshop = new Webshop();
                             }
                         } else {
 
+
                             /*$_SESSION['kat_id'] = $webshop->categoriesInsert();
                             //if (isset($_SESSION['katId'])) {
                             if (isset($_SESSION['kat_id'])) {
@@ -43,6 +44,7 @@ $webshop = new Webshop();
 
                             $webshop->categoriesInsert();
                             if (isset($_POST['kategoria_id'])) {
+
                                 header('Location: termekek.php');
                             }
                         }

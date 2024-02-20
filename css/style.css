@@ -3,7 +3,11 @@ body {
 }
 /*alap struktúra*/
 .background-image {
+
+ 
+
   background: url(../kepek/check_computer_specification.webp);
+
   background-color: #58aff6;
   height: 100%;
   width: 100%;
