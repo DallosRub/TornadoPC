@@ -182,29 +182,31 @@ class Webshop
   </div>
 </div>";
     }
-    if (isset($_POST['kategoria_id'])){
+
+    /*if (isset($_POST['kategoria_id'])){
+
       return $_POST['kategoria_id'];
-    }
+    }*/
   }
   public function categoriesInsert()
+
   {
     echo "
     <div class='accordion' id='accordionExample'>";
 
-    $vissza = $this->accordionInsert('Perifériák',1);
-    $vissza = $this->accordionInsert('PC Alkatrészek',2);
-    $vissza = $this->accordionInsert('Egyéb',3);
-    
+    $this->accordionInsert('Perifériák',1);
+    $this->accordionInsert('PC Alkatrészek',2);
+    $this->accordionInsert('Egyéb',3);
+    //$vissza=
     echo "</div>";
     
   //kell-e igy??? vagy ugy mint AddToCart()
-      return $vissza;
+      //return $vissza;
     
   }
   public function productsInsert($p, $kategoria_id = null)
   {
-    // if (isset($_POST['kategoria'])) {
-    // $kategoria_id = $_POST['kategoria_id'];
+
     $lapozas = $this->page($p, 3);
 
     $egyoldalon = (int) $lapozas[0];
@@ -220,7 +222,6 @@ class Webshop
               FROM termekek AS t
               INNER JOIN markak AS m ON m.id=t.marka_id
               WHERE t.kategoria_id=$kategoria_id
-              ORDER BY 2,3
               LIMIT $start, $egyoldalon";
     }
     $termekek = $this->sqlAssoc($sql);
@@ -241,7 +242,9 @@ class Webshop
                         <a href='termek.php?id={$termek['id']}' class='btn btn-info'>Vásárlás</a>
                     </div>
                     <div class='sor'>
-                       ";  // stretched-link
+
+                       ";
+
       $this->postButton('kosar', $kategoria_id, $termek['id']);
       $this->postButton('kedvencek', $kategoria_id, $termek['id']);
       echo "
@@ -278,7 +281,7 @@ class Webshop
 
   public function addToCart()
   {
-    // Kosar id termek_id fh_id ar mennyiseg	
+    // Kosar: id termek_id fh_id ar mennyiseg	
     if (isset($_POST['kosarba_helyezes'])) {
       $termek_id = $_POST['kosarba_helyezes'];
 

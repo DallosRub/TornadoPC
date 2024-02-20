@@ -3,7 +3,11 @@ body {
 }
 /*alap struktúra*/
 .background-image {
-  background: url(http://localhost/!boronkay/mestermu/develop/TornadoPC/kepek/check_computer_specification.webp);
+
+ 
+
+  background: url(../kepek/check_computer_specification.webp);
+
   background-color: #58aff6;
   height: 100%;
   width: 100%;

@@ -33,13 +33,23 @@ $webshop = new Webshop();
                                 $webshop->ProductsInsert($p);
                             }
                         } else {
-                            $katId = $webshop->categoriesInsert();
-                            $_SESSION['katId'] = $katId;
-                            if (isset($_SESSION['katId'])) {
+
+
+                            /*$_SESSION['kat_id'] = $webshop->categoriesInsert();
+                            //if (isset($_SESSION['katId'])) {
+                            if (isset($_SESSION['kat_id'])) {
+                                header('Location: termekek.php');
+                                //http_response_code(200);
+                            }*/
+
+                            $webshop->categoriesInsert();
+                            if (isset($_POST['kategoria_id'])) {
+
                                 header('Location: termekek.php');
                             }
                         }
                         $webshop->addToCart();
+
                         ?>
                     </div>
                 </div>
