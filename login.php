@@ -4,15 +4,14 @@
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <link rel="stylesheet" href="login_reg.css">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="css/login_reg.css">
+    <link rel="stylesheet" href="css/style.css">
     <title>Bejelentkezés</title>
 </head>
 
 <body>
-    <div class="container">
-        <form method="post" action="">
+    <div class="container_form">
+        <form class="formnak" method="post" action="<?=$_SERVER['PHP_SELF']?>">
             <div class="head">
                 <span>Bejelentkezés</span>
             </div>
@@ -52,7 +51,7 @@
             /*echo '<script language="javascript">';
             echo 'window.location( "index.php" )';
             echo '</script>';*/
-            header("Location: index_fv.php");
+            header("Location: index.php");
             session_start();
             $_SESSION['fnev'] = $fnev;
             echo $_SESSION['fnev'];

@@ -2,6 +2,69 @@
 session_start();
 require_once "adatbazis.php";
 $db = kapcs();
+//print_r($_POST);
+$sql="SELECT id FROM felhasznalok WHERE nev='{$_SESSION['fnev']}'";
+$fhidk=$db->query($sql);    
+$fhid=$fhidk->fetchAll(PDO::FETCH_ASSOC);
+$sql="SELECT MAX(id) AS max FROM konfig_id";
+$kidk=$db->query($sql);
+$kid=$kidk->fetchAll(PDO::FETCH_ASSOC);
+
+print_r($fhid[0]['id']);
+print_r("Abalencsik");
+print_r($_POST);
+$valami=$kid[0]['max'];
+/*$konfig="
+<div class='card'>
+<div class='card-body'>
+    <h5 class='card-title' style='margin-bottom: 0px;'>Bencs</h5>
+        <table style=''>
+            <tr>
+                <td>Processzor:</td>
+                <td>{$_POST['Processzor']}</td>
+            </tr>
+            <tr>
+                <td>Videókártya:</td>
+                <td>{$_POST['Videókártya']}</td>
+            </tr>
+            <tr>
+                <td>Alaplap:</td>
+                <td>{$_POST['Alaplap']}</td>
+            </tr>
+            <tr>
+                <td>Memória:</t d>
+                <td>{$_POST['Memória']}</td>
+            </tr>
+            <tr>
+                <td>Merevlemez:</td>
+                <td>{$_POST['Merevlemez']}</td>
+            </tr>
+            <tr>
+                <td>SSD:</td>
+                <td>{$_POST['SSD']}</td>
+            </tr>
+            <tr>
+                <td>Tápegység:</td>
+                <td>{$_POST['Tápegység']}</td>
+            </tr>
+            <tr>
+                <td>Processzor hűtő:</td>
+                <td>{$_POST['Processzor_hűtő']}</td>
+            </tr>
+            <tr>
+                <td>Számítógépház:</td>
+                <td>{$_POST['Számítógépház']}</td>
+            </tr>
+        </table>
+    <img src='like.png' alt='' style='display: block; float: inline-start;'>
+    <img src='dislike.png' alt='' style='display: block; float: inline-end;'>
+</div>
+</div>
+";        
+$sql="INSERT INTO konfig(felh_id, konfig) VALUES ({$fhid[0]}, '$konfig')";
+$db->exec($sql);*/
+
+
 ?>
 
 <!DOCTYPE html>
@@ -50,11 +113,13 @@ $db = kapcs();
                                     $kat_db++;
                                 }
 
-                                $sql="SELECT * FROM termekek WHERE kategoria_id <= $kat_db";
+                                $sql="SELECT t.id, t.kategoria_id, CONCAT(m.megnevezes,' - ', t.megn) AS nev 
+                                FROM termekek AS t
+                                INNER JOIN markak AS m ON m.id=t.marka_id";
                                 $term=$db->query($sql);
                                 $termekek=$term->fetchAll(PDO::FETCH_ASSOC);
 
-
+                                $szam=0;
                                 foreach ($kategoriak as $kategoria) {
                                     if ($kategoria['kat_id'] == 1) {
                                         echo "<tr>
@@ -62,23 +127,39 @@ $db = kapcs();
                                                     {$kategoria['megnevezes']} :
                                                 </td>
                                                 <td>
-                                                    <select name='{$kategoria['megnevezes']}'>
+                                                    <select name='$szam'>
+                                                
                                             ";
+                                        $szam++;
                                         foreach ($termekek as $termek) {
                                             if($termek['kategoria_id']==$kategoria['id']){
                                                 
-                                                $sql="SELECT megnevezes FROM markak WHERE id={$termek['marka_id']}";
-                                                $geci=$db->query($sql);
-                                                $fasz=$geci->fetchAll(PDO::FETCH_ASSOC);
-                                                var_dump($fasz);
-                                                echo"<option value='{$termek['megn']}'>{$fasz['megnevezes']} {$termek['megn']}</option>";
+                                               echo "<option value='{$termek['id']}'>{$termek['nev']}</option>";
                                             }
-                                                                                    
+                                                                                
                                         }
-                                      }
+                                    }
+
                                 }
+                                echo "</td>";
+                                
+                                
+
+                                $sql="INSERT INTO konfig_id (felh_id) VALUES({$fhid[0]['id']})";
+                                $db->query($sql);
+                                for ($i=0; $i < count($_POST); $i++) { 
+                                    $sql="INSERT INTO konfig (termek_id, konf_id) VALUES({$_POST[$i]}, {$valami})";
+                                    //print_R($sql);
+                                    $db->query($sql);
+                                }
+
                             ?>
+
+                            
                 </table>
+                
+            </div>
+                <input type="submit" value="Beküldés">
             </form>
             </div>
         </div>

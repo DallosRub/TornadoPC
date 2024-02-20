@@ -1,34 +1,40 @@
 <?php
-    session_start();
-    require_once "adatbazis.php";
-    $db = kapcs();
-    ob_start();
-    require_once "fuggvenyek.php";
-    $webshop = new Webshop();
-?> 
+session_start();
+require_once "adatbazis.php";
+$db = kapcs();
+ob_start();
+require_once "fuggvenyek.php";
+$webshop = new Webshop();
+?>
 <!DOCTYPE html>
 <html lang="hu">
+
 <head>
-    <?php $webshop->HeadInsert(' - Kosár'); ?>
+    <?php $webshop->headInsert(' - Kosár'); ?>
 </head>
 
 <body>
-    <div class="mindenseg">
-        <div class="blue-bg">
-        <?php $webshop->NavbarInsert(); ?>
+    <div class="background-image">
+        <?php
+        $webshop->navbarInsert();
+        ?>
 
+        <div class="container-fluid tartalomnak">
+            <div class="row">
+                <div class="col-lg-6">
+                    <div class="content">
+                        <?php //ell fh_id
+                        $webshop->displayCartInTable();
+                        ?>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
-    <div class="white-bg shadow">
-    </div>
+    <footer class="footer">
+        <?php $webshop->footerInsert(); ?>
+    </footer>
 
-        <div class="content w3-main" style="margin-left:20%">
-            <h1>Kosár tartalma</h1>
-            <?php        
-            //ell fh_id
-                $webshop->DisplayCartInTable();
-            ?>
-        </div>
 </body>
 
 </html>

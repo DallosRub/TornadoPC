@@ -25,13 +25,21 @@ $webshop = new Webshop();
                 <div class="col-lg-9">
                     <div class="content">
                     <h1>Tornado PC</h1>
-                        <?php 
-                            echo $_GET['id'].", ".$_SESSION['katId'];
-                            $_SESSION['termekId'] = $_GET['id'];
-                            $webshop->productInsert($_GET['id']);
-                            
-                            echo $_SESSION['katId'].", ".$_SESSION['termekId'];
-                            $webshop->addToCart();
+                        <?php
+                        if (isset($_POST['a'])) {
+                            $p = isset($_GET['p']) ? (int) $_GET['p'] : 1;
+                            if ($_POST['a'] === 'osszes_termek') {
+                                $webshop->productsInsert($p);
+                            }
+                        }
+                        else{
+                            $p = isset($_GET['p']) ? (int) $_GET['p'] : 1;
+                            if (isset($_SESSION['katId'])) {
+
+                                $webshop->productsInsert($p, $_SESSION['katId']);
+                            }
+                        }
+                        $webshop->addToCart();
                         ?>
                     </div>
                 </div>
