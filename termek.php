@@ -1,8 +1,9 @@
 <?php
-session_start();
-ob_start();
-require_once "fuggvenyek.php";
-$webshop = new Webshop();
+    session_start();
+    ob_start();
+    require_once "fuggvenyek.php";
+    $webshop = new Webshop();
+    $cart = new Cart();
 ?>
 <!DOCTYPE html>
 <html lang="hu">
@@ -26,12 +27,13 @@ $webshop = new Webshop();
                     <div class="content">
                     <h1>Tornado PC</h1>
                         <?php 
-                            echo $_GET['id'].", ".$_SESSION['katId'];
+                            echo $_GET['id'].", ".$_POST['kategoria_id'];
                             $_SESSION['termekId'] = $_GET['id'];
                             $webshop->productInsert($_GET['id']);
                             
-                            echo $_SESSION['katId'].", ".$_SESSION['termekId'];
-                            $webshop->addToCart();
+                            echo $_POST['kategoria_id'].", ".$_SESSION['termekId'];
+                            print_r($_POST);
+                            $cart->addToCart();
                         ?>
                     </div>
                 </div>

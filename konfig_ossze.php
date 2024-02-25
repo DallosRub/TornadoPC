@@ -1,19 +1,22 @@
 <?php
 session_start();
-require_once "adatbazis.php";
-$db = kapcs();
+require_once "fuggvenyek.php";
+$db = new DB();
+
+$webshop = new Webshop();
+
 //print_r($_POST);
-$sql="SELECT id FROM felhasznalok WHERE nev='{$_SESSION['fnev']}'";
-$fhidk=$db->query($sql);    
-$fhid=$fhidk->fetchAll(PDO::FETCH_ASSOC);
-$sql="SELECT MAX(id) AS max FROM konfig_id";
-$kidk=$db->query($sql);
-$kid=$kidk->fetchAll(PDO::FETCH_ASSOC);
+$sql = "SELECT id FROM felhasznalok WHERE nev='{$_SESSION['fnev']}'";
+$fhid = $db->sqlAssoc($sql);
+
+$sql = "SELECT MAX(id) AS max FROM konfig_id";
+$kid = $db->sqlAssoc($sql);
 
 print_r($fhid[0]['id']);
 print_r("Abalencsik");
 print_r($_POST);
-$valami=$kid[0]['max'];
+print_r($kid);
+$valami = $kid[0]['max'];
 /*$konfig="
 <div class='card'>
 <div class='card-body'>
@@ -84,45 +87,46 @@ $db->exec($sql);*/
 
 </head>
 <style>
-    table, td, th{
+    table,
+    td,
+    th {
         border: 1px solid black;
         border-collapse: collapse;
     }
 </style>
+
 <body>
     <div class="mindenseg">
         <div class="blue-bg">
-        <?php require_once "navbar.php"; ?>
+            <?php $webshop->navbarInsert(); ?>
 
         </div>
     </div>
     <div class="white-bg shadow">
     </div>
 
-        <div class="content w3-main" style="margin-left:20%">
-            <h1>Konfiguráció összeállító</h1>
-            <form action="" method="post">
-                <table>
-                            <?php
-                                $sql = 'SELECT * FROM termek_kategoriak WHERE kat_id=1' ;
+    <div class="content w3-main" style="margin-left:20%">
+        <h1>Konfiguráció összeállító</h1>
+        <form action="" method="post">
+            <table>
+                <?php
+                $sql = 'SELECT * FROM termek_kategoriak WHERE kat_id=1';
 
-                                $stmtKat = $db->query($sql);
-                                $kategoriak = $stmtKat->fetchAll(PDO::FETCH_ASSOC);
-                                $kat_db=0;
-                                foreach ($kategoriak as $kategoria) {
-                                    $kat_db++;
-                                }
+                $kategoriak = $db->sqlAssoc($sql);
+                $kat_db = 0;
+                foreach ($kategoriak as $kategoria) {
+                    $kat_db++;
+                }
 
-                                $sql="SELECT t.id, t.kategoria_id, CONCAT(m.megnevezes,' - ', t.megn) AS nev 
+                $sql = "SELECT t.id, t.kategoria_id, CONCAT(m.megnevezes,' - ', t.megn) AS nev 
                                 FROM termekek AS t
                                 INNER JOIN markak AS m ON m.id=t.marka_id";
-                                $term=$db->query($sql);
-                                $termekek=$term->fetchAll(PDO::FETCH_ASSOC);
+                $termekek = $db->sqlAssoc($sql);
 
-                                $szam=0;
-                                foreach ($kategoriak as $kategoria) {
-                                    if ($kategoria['kat_id'] == 1) {
-                                        echo "<tr>
+                $szam = 0;
+                foreach ($kategoriak as $kategoria) {
+                    if ($kategoria['kat_id'] == 1) {
+                        echo "<tr>
                                                 <td>
                                                     {$kategoria['megnevezes']} :
                                                 </td>
@@ -130,39 +134,39 @@ $db->exec($sql);*/
                                                     <select name='$szam'>
                                                 
                                             ";
-                                        $szam++;
-                                        foreach ($termekek as $termek) {
-                                            if($termek['kategoria_id']==$kategoria['id']){
-                                                
-                                               echo "<option value='{$termek['id']}'>{$termek['nev']}</option>";
-                                            }
-                                                                                
-                                        }
-                                    }
+                        $szam++;
+                        foreach ($termekek as $termek) {
+                            if ($termek['kategoria_id'] == $kategoria['id']) {
 
-                                }
-                                echo "</td>";
-                                
-                                
+                                echo "<option value='{$termek['id']}'>{$termek['nev']}</option>";
+                            }
 
-                                $sql="INSERT INTO konfig_id (felh_id) VALUES({$fhid[0]['id']})";
-                                $db->query($sql);
-                                for ($i=0; $i < count($_POST); $i++) { 
-                                    $sql="INSERT INTO konfig (termek_id, konf_id) VALUES({$_POST[$i]}, {$valami})";
-                                    //print_R($sql);
-                                    $db->query($sql);
-                                }
+                        }
+                    }
 
-                            ?>
+                }
+                echo "</td>";
 
-                            
-                </table>
-                
-            </div>
-                <input type="submit" value="Beküldés">
-            </form>
-            </div>
-        </div>
+
+
+                $sql = "INSERT INTO konfig_id (felh_id) VALUES({$fhid[0]['id']})";
+                $db->sqlQuery($sql);
+                for ($i = 0; $i < count($_POST); $i++) {
+                    $sql = "INSERT INTO konfig (termek_id, konf_id) VALUES({$_POST[$i]}, {$valami})";
+                    //print_R($sql);
+                    $db->sqlQuery($sql);
+                }
+
+                ?>
+
+
+            </table>
+
+    </div>
+    <input type="submit" value="Beküldés">
+    </form>
+    </div>
+    </div>
 
 </body>
 

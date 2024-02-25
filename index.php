@@ -1,8 +1,8 @@
 <?php
-session_start();
-ob_start();
-require_once "fuggvenyek.php";
-$webshop = new Webshop();
+    session_start();
+    ob_start();
+    require_once "fuggvenyek.php";
+    $webshop = new Webshop();
 ?>
 <!DOCTYPE html>
 <html lang="hu">
@@ -27,29 +27,10 @@ $webshop = new Webshop();
                 <div class="col-lg-9">
                     <div class="content">
                         <?php
-                        if (isset($_POST['a'])) {
-                            $p = isset($_GET['p']) ? (int) $_GET['p'] : 1;
-                            if ($_POST['a'] === 'osszes_termek') {
-                                $webshop->ProductsInsert($p);
-                            }
-                        } else {
-
-
-                            /*$_SESSION['kat_id'] = $webshop->categoriesInsert();
-                            //if (isset($_SESSION['katId'])) {
-                            if (isset($_SESSION['kat_id'])) {
-                                header('Location: termekek.php');
-                                //http_response_code(200);
-                            }*/
-
                             $webshop->categoriesInsert();
                             if (isset($_POST['kategoria_id'])) {
-
                                 header('Location: termekek.php');
                             }
-                        }
-                        $webshop->addToCart();
-
                         ?>
                     </div>
                 </div>
@@ -59,17 +40,13 @@ $webshop = new Webshop();
     <footer class="footer">
         <?php $webshop->footerInsert(); ?>
     </footer>
-    <script> 
-       /* $(document).ready(function () { 
-            $('#navbarNavDropdown').hover(function () { 
-                $(this).addClass('show'); 
-                $(this).find('.nav-menu').addClass('show'); 
-            }, function () { 
-                $(this).removeClass('show'); 
-                $(this).find('.nav-menu').removeClass('show'); 
-            }); 
-        }); */
-    </script> 
+    <script>
+     /* function menny_csokk(id){
+        id_itt = id;
+        id_itt--;
+        console.log(id_itt);
+      }*/
+  </script>
 </body>
 
 </html>

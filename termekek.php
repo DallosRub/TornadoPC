@@ -1,14 +1,17 @@
 <?php
-session_start();
-ob_start();
-require_once "fuggvenyek.php";
-$webshop = new Webshop();
+    session_start();
+    ob_start();
+    require_once "fuggvenyek.php";
+    $webshop = new Webshop();
+    $cart = new Cart();
 ?>
 <!DOCTYPE html>
 <html lang="hu">
+
 <head>
     <?php $webshop->headInsert(); ?>
 </head>
+
 <body>
     <div class="background-image">
         <?php
@@ -24,32 +27,25 @@ $webshop = new Webshop();
                 </div>
                 <div class="col-lg-9">
                     <div class="content">
-                    <h1>Tornado PC</h1>
+                        <h1>Tornado PC</h1>
                         <?php
 
-                        /*if (isset($_POST['a'])) {
+                        $p = isset($_GET['p']) ? (int) $_GET['p'] : 1;
+                        
+                        //$_POST['kategoria_id'];
+                        
+                        if (isset($_POST['kategoria_id'])) {
+                            $webshop->productsInsert($p, $_POST['kategoria_id']);
 
+                        } else {
                             $p = isset($_GET['p']) ? (int) $_GET['p'] : 1;
-                            if ($_POST['a'] === 'osszes_termek') {
-                                $webshop->productsInsert($p);
+                            if (isset($_POST['a']) && $_POST['a'] == 'osszes_termek') {
+                                $_POST['kategoria_id']=0;
+                                $webshop->productsInsert($p, $_POST['kategoria_id']);
                             }
                         }
-
-
-                        else{*/
-                            $p = isset($_GET['p']) ? (int) $_GET['p'] : 1;
-                            $webshop->productsInsert($p, $_POST['kategoria_id']);
-                            //if (isset($_SESSION['kat_id'])) {
-                                //$webshop->productsInsert($p, $_SESSION['kat_id']);
-                                //$_SESSION['kat_id'] = $_POST['kategoria_id'];
-                                //echo $_SESSION['kat_id'];
-                                echo" ";
-                                echo $_POST['kategoria_id'];
-                                //$_SESSION['kat_id']=null;
-                            //}
-                        //}
-
-                        $webshop->addToCart();
+                        print_r($_POST);
+                        $cart->addToCart();
                         ?>
                     </div>
                 </div>
@@ -61,5 +57,6 @@ $webshop = new Webshop();
     </footer>
 
 </body>
+
 </html>
 <?php ob_end_flush(); ?>

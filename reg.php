@@ -1,12 +1,15 @@
+<?php
+    session_start();
+    ob_start();
+    require_once "fuggvenyek.php";
+    $webshop = new Webshop();
+    $user = new User();
+?>
 <!DOCTYPE html>
 <html lang="hu">
 
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="css/style.css">
-    <title>Regisztráció</title>
+    <?php $webshop->headInsert(" - Regisztráció"); ?>
 </head>
 
 <body>
@@ -27,28 +30,9 @@
         </div>
     </div>
 
-
-    <?php
-    if (isset($_POST['fnev']) && isset($_POST['email']) && isset($_POST['jelsz'])) {
-        $fnev = $_POST['fnev'];
-        $email = $_POST['email'];
-        $e = $_POST['jelsz'];
-
-        //$jelszo=password_hash($e,PASSWORD_DEFAULT);
-        $jelszo = sha1($e);
-        include 'adatbazis.php';
-        $db = kapcs();
-        $sql = 'INSERT INTO felhasznalok (nev,email,jelszo) VALUES ("' . $fnev . '","' . $email . '","' . $jelszo . '")';
-
-        try {
-            $db->exec($sql);
-            print_r("Nagyon baba");
-        } catch (Exception $e) {
-            print_r("Nem sikerült");
-        }
-    }
-
-    ?>
+<?php
+    $user->registration();
+?>
 </body>
 
 </html>

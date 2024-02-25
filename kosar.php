@@ -1,10 +1,9 @@
 <?php
-session_start();
-require_once "adatbazis.php";
-$db = kapcs();
-ob_start();
-require_once "fuggvenyek.php";
-$webshop = new Webshop();
+    session_start();
+    ob_start();
+    require_once "fuggvenyek.php";
+    $webshop = new Webshop();
+    $cart = new Cart();
 ?>
 <!DOCTYPE html>
 <html lang="hu">
@@ -15,16 +14,13 @@ $webshop = new Webshop();
 
 <body>
     <div class="background-image">
-        <?php
-        $webshop->navbarInsert();
-        ?>
-
         <div class="container-fluid tartalomnak">
             <div class="row">
                 <div class="col-lg-6">
                     <div class="content">
-                        <?php //ell fh_id
-                        $webshop->displayCartInTable();
+                        <a href="index.php">Főoldal</a>
+                        <?php
+                        $cart->displayCartInTable();
                         ?>
                     </div>
                 </div>
