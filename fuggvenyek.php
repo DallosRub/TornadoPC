@@ -1,30 +1,6 @@
 <?php
-class Webshop
+class Webshop extends DB
 {
-  protected $db;
-  public function __construct()
-  {
-    $host = "localhost";
-    $user = "root";
-    $pwd = "";
-    $dbname = "pc-webshop";
-
-    $s = "mysql:host=$host;dbname=$dbname;charset=utf8;port=3306";
-    $this->db = new PDO($s, $user, $pwd);
-  }
-
-  public function sqlAssoc($sql) //FETCH_ASSOC
-  {
-    $stmt = $this->db->query($sql);
-    $stmt->execute();
-    return $stmt->fetchAll(PDO::FETCH_ASSOC);
-  }
-  public function sqlQuery($sql)
-  {
-    $stmt = $this->db->prepare($sql); //nem lehet ->query() pl: 2x helyez kosárba 
-    $stmt->execute();
-    return $stmt;
-  }
   public function headInsert($cim = null)
   {
     echo "<meta charset='UTF-8'>
@@ -40,27 +16,27 @@ class Webshop
         <link rel='stylesheet' href='https://www.w3schools.com/w3css/4/w3.css'>
         <link rel='stylesheet' href='css/style.css'>";
   }
-  public function jQueryInsert(){
-    echo"<script src='https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js'></script>";
+  public function jQueryInsert()
+  {
+    echo "<script src='https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js'></script>";
   }
-
-  public function navbarDropdownAssoc($kat_id)
+  private function navbarDropdownAssoc($kat_id)
   {
     $sql = "SELECT * FROM termek_kategoriak
-              WHERE kat_id = $kat_id";
-    $kategoriak = $this->sqlAssoc($sql);
+              WHERE kat_id = $kat_id
+              ORDER BY 2";
+    $kategoriak = parent::sqlAssoc($sql);
     return $kategoriak;
   }
   public function dropdownInsert($cime, $kat_id = null)
   {
     if ($kat_id != null) {
       $kategoriak = $this->navbarDropdownAssoc($kat_id);
-    }
-    /*else { //navbar fh adatait
+    } elseif (isset($_SESSION['fid'])) { //navbar fh adatai
       $sql = "SELECT * FROM felhasznalok
-              WHERE id = {$_SESSION['fh_id']}";
-    }*/
-    //$kategoriak = $this->sqlAssoc($sql);
+              WHERE id = {$_SESSION['fid']}";
+      $felhasznalok = parent::sqlAssoc($sql);
+    }
 
     echo "<li class='nav-item dropdown'>
               <a class='nav-link dropdown-toggle' href='#' role='button' data-bs-toggle='dropdown'
@@ -69,17 +45,21 @@ class Webshop
               </a>
               <ul class='dropdown-menu'>";
 
-    foreach ($kategoriak as $kategoria) {
-      $this->postButton('dropdown', $kategoria['id'], $kategoria['megnevezes']);
+    if (isset($kategoriak)) {
+      foreach ($kategoriak as $kategoria) {
+        $this->postButton('dropdown', 'kategoria_id', $kategoria['id'], '', '', $kategoria['megnevezes']);
+      }
+    } else {
+      foreach ($felhasznalok as $fh) {
+        $this->postButton('dropdown', 'fh_adatok', $fh['id'], '', '', 'Adatok');
+        $this->postButton('dropdown', 'rendeles_elozmenyek', $fh['id'], '', '', 'Rendelési előzmények');
+      }
     }
     echo "</ul></li>";
   }
   public function navbarInsert()
   {
-    $fn = "";
-    if (isset($_SESSION['fnev'])) {
-      $fn = $_SESSION['fnev'];
-    }
+    $bejelentkezettE= !isset($_SESSION['fid']) ? true : false;
     echo "
           <nav class='navbar navbar-expand-sm bg-body fixed'>
               <div class='container'>
@@ -96,28 +76,48 @@ class Webshop
 
     $this->postButton('osszes_termek');
     echo "
+                      <li class='nav-item'>
+                      <a class='nav-link' href='konfig.php'>Konfigurációk</a>  
+                  </li>      
+                  <li class='nav-item'>
+                      <a class='nav-link' href='konfig_ossze.php'>Konfiguráció összerakó</a>  
+                  </li>
                   </ul>
-                  <div class='collapse navbar-collapse'>
-                      <ul class='navbar-nav ms-auto'>
-                          <li class='nav-item'>
-                              <a class='nav-link' href='konfig.php'>Konfigurációk</a>  
-                          </li>      
-                          <li class='nav-item'>
-                              <a class='nav-link' href='konfig_ossze.php'>Konfiguráció összerakó</a>  
-                          </li>
-                          <li class='nav-item'>
-                              <a class='nav-link' href='kosar.php'>Kosár</a>
-                          </li>                          
-                          <li class='nav-item'>
+                  <div class='collapse navbar-collapse' id='navbarNavDropdown'>
+                      <ul class='navbar-nav ms-auto'>";
+    if ($bejelentkezettE) {
+      echo "
+                            <li class='nav-item'>
                               <a class='nav-link' href='login.php'>Bejelentkezés</a>
-                          </li>
-                          <li class='nav-item'>
-                               <a class='nav-link' href='index.php'>$fn</a>  
-                          </li>
+                            </li>
+                            <li class='nav-item'>
+                              <a class='nav-link' href='reg.php'>Regisztráció</a>
+                            </li>
+                            <li class='nav-item' title='Jelentkezzen be a kosár használatához!'>
+                              <a class='nav-link disabled' href='kosar.php'><img class='kosar'  src='shopping-cart.png'></a>
+                            </li>";
+    } else {
+          $sql = "SELECT COUNT(id) AS db FROM `kosar` WHERE fh_id = {$_SESSION['fid']}";
+          $darabszam = parent::sqlSelect($sql);
+
+      $this->dropdownInsert($_SESSION['fnev']);
+      $this->postButton('kijel', 'kijel');
+      echo "                <li class='nav-item'>
+                              <a class='nav-link btn' href='kosar.php'>
+                                <img class='kosar' src='shopping-cart.png'><span class='translate-middle badge rounded-pill bg-danger'>$darabszam[db]</span>
+                              </a>
+                            </li>";
+    }
+    echo "     
                       </ul>
                   </div>
               </div>
           </nav>";
+    if (isset($_POST['kijel']) && $_POST['kijel'] == 1) {
+      $_SESSION = array();
+      session_destroy();
+      header('Location: index.php');
+    }
   }
   public function footerInsert()
   {
@@ -130,10 +130,28 @@ class Webshop
     </div>
    ";
   }
+  private function imageInsert($id, $hova)
+  {
+    if ($hova == "kat") {
+      $sql = "SELECT * FROM kepek
+              WHERE hova = 1 AND megjelenitett_id = $id";
+      $kepek = parent::sqlAssoc($sql);
+    } elseif ($hova == "termek") {
+      $sql = "SELECT * FROM kepek
+              WHERE hova = 2 AND megjelenitett_id = $id";
+      $kepek = parent::sqlAssoc($sql);
+    }
+
+    foreach ($kepek as $kep) {
+      echo "<img src='{$kep['utvonal']}' class='card-img-top img-fluid kep' alt='$id'>";
+    }
+
+  }
   public function accordionInsert($cime, $kat_id = null)
   {
     $sqlKategoriak = "SELECT * FROM termek_kategoriak
-                      WHERE kat_id = $kat_id";
+                      WHERE kat_id = $kat_id
+                      ORDER BY 2";
 
     $kategoriak = $this->sqlAssoc($sqlKategoriak);
 
@@ -162,20 +180,22 @@ class Webshop
     echo "' data-bs-parent='#accordionExample'>
     <div class='accordion-body'>";
 
-    //if (!isset($_POST['kategoria_id'])) {
     echo "<div class='row'>";
     foreach ($kategoriak as $kategoria) {
       echo "
       <div class='col-4 col-md-4'>
         <div class='card mb-4 h-100 shadow-sm border border-info'>
-          <img src='https://www.freepnglogos.com/uploads/notebook-png/download-laptop-notebook-png-image-png-image-pngimg-2.png' class='card-img-top' alt='...' />
+          ";
+      $this->imageInsert($kategoria['id'], "kat");
+      echo "{$kategoria['id']}
             <div class='card-body'>
               <div class='clearfix mb-3'>
                   <span class='kat'>{$kategoria['megnevezes']}</span>
               </div>";
-      $this->postButton('kat', $kategoria['id']);
+      $this->postButton('kat', 'kategoria_id', $kategoria['id']);
       echo "
             </div>
+          </div>
         </div>
       </div>";
     }
@@ -184,12 +204,7 @@ class Webshop
     </div>
   </div>
 </div>";
-    //}
 
-    /*if (isset($_POST['kategoria_id'])){
-
-      return $_POST['kategoria_id'];
-    }*/
   }
   public function categoriesInsert()
   {
@@ -206,28 +221,39 @@ class Webshop
   }
   public function productsInsert($p, $kategoria_id)
   {
-    $sql = "SELECT Count('id') FROM termekek ";
-    $sv1= $this->db->query($sql);
-    $sv=$sv1->fetch();
-    $darabszam = $sv[0];
-    $lapozas = $this->page($p, 9, $darabszam);
-
-    $egyoldalon = (int) $lapozas[0];
-    $start = (int) $lapozas[1];
-
     if ($kategoria_id == 0) {
+      $sql = "SELECT Count('id') AS id FROM termekek";
+      $sv = parent::sqlSelect($sql);
+      $darabszam = $sv['id'];
+
+      $mennyi = 9;
+      $lapozas = $this->page($p, $mennyi, $darabszam, $kategoria_id);
+      $egyoldalon = (int) $lapozas[0];
+      $start = (int) $lapozas[1];
+
       $sql = "SELECT t.id, m.megnevezes, t.megn, t.ar
               FROM termekek AS t
-              INNER JOIN markak AS m ON m.id=t.marka_id
+              INNER JOIN markak AS m ON m.id = t.marka_id
+              ORDER BY 2
               LIMIT $start, $egyoldalon";
     } else {
+      $sql = "SELECT Count('id') AS id FROM termekek WHERE kategoria_id = $kategoria_id";
+      $sv = parent::sqlSelect($sql);
+      $darabszam = $sv['id'];
+
+      $mennyi = 3;
+      $lapozas = $this->page($p, $mennyi, $darabszam, $kategoria_id);
+      $egyoldalon = (int) $lapozas[0];
+      $start = (int) $lapozas[1];
+
       $sql = "SELECT t.id, m.megnevezes, t.megn, t.ar
               FROM termekek AS t
-              INNER JOIN markak AS m ON m.id=t.marka_id
-              WHERE t.kategoria_id=$kategoria_id
+              INNER JOIN markak AS m ON m.id = t.marka_id
+              WHERE t.kategoria_id = $kategoria_id
+              ORDER BY 2
               LIMIT $start, $egyoldalon";
     }
-    $termekek = $this->sqlAssoc($sql);
+    $termekek = parent::sqlAssoc($sql);
 
     echo '<div class="row">';
     foreach ($termekek as $termek) {
@@ -250,8 +276,8 @@ class Webshop
 
                        ";
 
-      $this->postButton('kosar', $kategoria_id, $termek['id']);
-      $this->postButton('kedvencek', $kategoria_id, $termek['id']);
+      $this->postButton('kosar', 'kategoria_id', $kategoria_id, 'kosarba_helyezes', $termek['id']);
+      //$this->postButton('kedvencek', $kategoria_id, $termek['id']);
       echo "
                     </div>
                 </div>
@@ -268,9 +294,8 @@ class Webshop
               INNER JOIN markak AS m ON m.id=t.marka_id
               WHERE t.id=$id";
 
-    $termekek = $this->sqlAssoc($sql);
-    //print_r($termekek);
-
+    $termekek = parent::sqlAssoc($sql);
+    print_r($termekek);
     echo '<div class="row">';
     foreach ($termekek as $termek) {
       echo "
@@ -279,32 +304,49 @@ class Webshop
       <img src='https://www.freepnglogos.com/uploads/notebook-png/download-laptop-notebook-png-image-png-image-pngimg-2.png' class='card-img-top'>
       <p>{$termek['ar']} Ft</p>
      ";
-      $this->postButton('kosar2', $_POST['kategoria_id'], $_SESSION['termekId']);
+      $this->postButton('kosar2', 'kategoria_id', $_POST['kategoria_id'], 'kosarba_helyezes', $_SESSION['termekId']);
       echo "</div>";
 
     }
   }
 
-  public function page($p, $egyoldalon, $darabszam)
+  public function page($p, $egyoldalon, $darabszam, $kategoria_id)
   {
     $start = ($p - 1) * $egyoldalon;
     $lapok = ceil($darabszam / $egyoldalon);
+    echo "
+    <nav class='egysor'>
+      <ul class='pagination'>
+        <form action='?p=1' method='POST'>
+          <input type='hidden' name='kategoria_id' value='$kategoria_id'>
+          <li class='page-item'><button type='submit' class='page-link post_gombnak'>&laquo;</button></li>
+        </form>
+      </ul>
+    </nav>";
 
-    echo "<nav class='egysor'>
-            <ul class='pagination'>
-              <li class='page-item'><a class='page-link' href='?p=1'>&laquo;</a></li>";
-    $darab = 5;
+    $darab = floor($darabszam/$egyoldalon);
     $kezdoLap = max(1, min($p - floor($darab / 2), $lapok - $darab + 1));
 
-    $megjelenit_darab = 0;
-    //ha $darab >=5 akkor 5, kül $darab amennyi van
-    for ($i = $kezdoLap; $i < $kezdoLap + 5 && $i <= $lapok; $i++) {
-      echo "<li class='page-item'><a class='page-link' href='?p=$i'>$i</a></li>";
+    for ($i = $kezdoLap; $i < $kezdoLap + $darab && $i <= $lapok; $i++) {
+      echo "
+      <nav class='egysor'>
+        <ul class='pagination'>
+          <form action='?p=$i' method='POST'>
+            <input type='hidden' name='kategoria_id' value='$kategoria_id'>
+            <li class='page-item'><button type='submit' class='page-link post_gombnak'>$i</button></li>
+          </form>
+        </ul>
+      </nav>";
     }
-
-    echo "<li class='page-item'><a class='page-link' href='?p=$lapok'>&raquo;</a></li>";
-    echo "</ul>
-          </nav>";
+    echo "
+    <nav class='egysor'>
+      <ul class='pagination'>
+        <form action='?p=$lapok' method='POST'>
+          <input type='hidden' name='kategoria_id' value='$kategoria_id'>
+          <li class='page-item'><button type='submit' class='page-link post_gombnak'>&raquo;</button></li>
+        </form>
+      </ul>
+    </nav>";
 
     return array($egyoldalon, $start);
   }
@@ -326,63 +368,91 @@ class Webshop
   }*/
   private function hiddenInput($name, $value)
   {
-    echo "<input type='hidden' name='$name' value='{$value}'>";
+    echo "<input type='hidden' name='$name' value='$value'>";
   }
-  public function postButton($funkcio, $e1 = null, $e2 = null)
-  {
+  //public function postButton($funkcio, $e1 = null, $e2 = null, $e3 = null)
+  public function postButton($funkcio, $n1 = null, $v1 = null, $n2 = null, $v2 = null, $m = null)
+  { //mint 'dropdown' és $_SERVER? külön <button> és <a href
+
+    /* if($funkcio == 'dropdown' || ''){
+       echo "<li>
+         <form action={$_SERVER['PHP_SELF']} method='POST'>";
+         $this->hiddenInput($e1, $e2);
+         echo "<button type='submit' class='dropdown-item' id='{$e1}'>{$e3}</button>
+         </form>
+       </li>";
+     }
+ */
     switch ($funkcio) {
-      case 'kosar':
+      case 'kat':
         echo "
-          <form action={$_SERVER['REQUEST_URI']} method='POST'>";
-        $this->hiddenInput('kategoria_id', $e1);
-        $this->hiddenInput('kosarba_helyezes', $e2);
-        $this->hiddenInput('menny', 1);
-        echo "<button type='submit' class='btn'><img class='kosar' src='shopping-cart.png'></button>
+        <form action='termekek.php' method='POST'>";
+          $this->hiddenInput($n1, $v1);
+        echo "<div class='text-center'><button type='submit' class='btn btn-info kozepre'>Tovább...</button>
           </form>";
         break;
-        case 'kosar2':
-          echo "
-            <form action={$_SERVER['REQUEST_URI']} method='POST'>";
-          $this->hiddenInput('kategoria_id', $e1);
-          $this->hiddenInput('kosarba_helyezes', $e2);
-          echo "<input type='number' name='menny'>
-          <button type='submit' class='btn'><img class='kosar' src='shopping-cart.png'></button>
-            </form>";
-          break;
+      case 'kijel':
+        echo "
+        <li class='nav-item'>
+          <form action={$_SERVER['PHP_SELF']} method='POST'>";
+          $this->hiddenInput($n1, 1);
+        echo "<button type='submit' class='nav-link post_gombnak'>Kijelentkezés</button>
+          </form>
+        </li>";
+        break;
 
-      case 'kedvencek':
+      case 'kosar':
+        echo "
+        <form action={$_SERVER['PHP_SELF']} method='POST'>";
+          $this->hiddenInput($n1, $v1);
+          $this->hiddenInput($n2, $v2);
+          $this->hiddenInput('menny', 1);
+        echo "<button type='submit' class='btn'><img class='kosar' src='shopping-cart.png'></button>
+        </form>";
+        break;
+      case 'kosar2':
+        echo "
+        <form action='termek.php?id=$v2' method='POST'>";
+          $this->hiddenInput($n1, $v1);
+          $this->hiddenInput($n2, $v2);
+        echo "<input type='number' name='menny' min='1' max='100' value='1'>
+          <button type='submit' class='btn'><img class='kosar' src='shopping-cart.png'></button>
+        </form>";
+        break;
+
+      case 'dropdown':
+        echo "
+        <li>
+          <form action='termekek.php' method='POST'>";
+          $this->hiddenInput($n1, $v1);
+        echo "<button type='submit' class='dropdown-item' id='{$n1}'>{$m}</button>
+          </form>
+        </li>";
+        break;
+
+      case 'osszes_termek':
+        echo "
+        <li class='nav-item'>
+          <form id='osszes_termek_form' action='termekek.php' method='POST'>";
+            $this->hiddenInput('a', $funkcio);
+        echo "<button type='submit' class='nav-link post_gombnak'>Összes termék</button>
+          </form>
+        </li>";
+        break;
+
+      /*$this->postButton('dropdown', 'fh_adatok', $fh['id'], 'Adatok');
+      $this->postButton('dropdown', 'rendeles_elozmenyek', $fh['id'], 'Rendelési előzmények');
+*/
+      /*case 'kedvencek':
         echo "
         <form action={$_SERVER['PHP_SELF']} method='POST'>";
         $this->hiddenInput('kategoria_id', $e1);
         $this->hiddenInput('kedvencekhez_ad', $e2);
         echo "<button type='submit' class='btn'><img class='sziv' src='heart.png'></button>
         </form>";
-        break;
-      case 'dropdown':
-      echo "<li>
-        <form action={$_SERVER['PHP_SELF']} method='POST'>";
-        $this->hiddenInput('kategoria_id', $e1);
-        echo "<button type='submit' class='dropdown-item'>{$e2}</button>
-        </form>
-      </li>";
-        break;
-      case 'osszes_termek':
-        echo "<li class='nav-item'>
-        <form id='osszes_termek_form' action='termekek.php' method='POST'>";
-        $this->hiddenInput('a', $funkcio);
-        echo "<button type='submit' class='nav-link' style='background: none; border: none;'>Összes termék</button>
-        </form>
-      </li>";
-        break;
-      case 'kat':
-        echo "<form action='termekek.php' method='POST'>";
-        $this->hiddenInput('kategoria_id', $e1);
-        echo "<div class='text-center'><button type='submit' class='btn btn-info kozepre'>Tovább...</button>
-        </form></div>";
-        break;
-      /*default:
-    # code...
-    break;*/
+        break;*/
+
+
     }
   }
 
@@ -495,7 +565,6 @@ class Webshop
 class DB
 {
   protected $db;
-  //public function connect()
   public function __construct()
   {
     $host = "localhost";
@@ -506,7 +575,6 @@ class DB
     $s = "mysql:host=$host;dbname=$dbname;charset=utf8;port=3306";
     $db = new PDO($s, $user, $pwd);
     $this->db = $db;
-    //return $db;
   }
   public function sqlAssoc($sql) //FETCH_ASSOC
   {
@@ -520,9 +588,17 @@ class DB
     $stmt->execute();
     return $stmt;
   }
+  public function sqlSelect($sql)
+  {
+    $stmt = $this->db->query($sql);
+    $stmt->execute();
+    return $stmt->fetch();
+  }
 }
-class User extends DB{
-  public function registration(){
+class User extends DB
+{
+  public function registration()
+  {
     if (isset($_POST['fnev']) && isset($_POST['email']) && isset($_POST['jelsz'])) {
       $fnev = $_POST['fnev'];
       $email = $_POST['email'];
@@ -534,14 +610,15 @@ class User extends DB{
 
       try {
         parent::sqlQuery($sql);
-          print_r("Nagyon baba");
+        print_r("Nagyon baba");
       } catch (Exception $e) {
-          print_r("Nem sikerült");
-          echo $e;
+        print_r("Nem sikerült");
+        echo $e;
       }
     }
   }
-  public function login(){
+  public function login()
+  {
     if (isset($_POST['fnev']) && isset($_POST['jelsz'])) {
       $fnev = $_POST['fnev'];
       $j = $_POST['jelsz'];
@@ -576,75 +653,79 @@ class DB_Select extends DB
 }*/
 
 
-class Cart extends Webshop
+class Cart extends DB
 {
-  //$db = new DB();
   public function addToCart()
   {
     if (isset($_POST['kosarba_helyezes'])) {
-      $termek_id = $_POST['kosarba_helyezes'];
+      if (isset($_SESSION['fid'])) {
 
-      $fh_id = $_SESSION['fid'];
-      $menny = $_POST['menny'];
+        $termek_id = $_POST['kosarba_helyezes'];
+        $fh_id = $_SESSION['fid'];
+        $menny = $_POST['menny'];
 
-      $sql = "INSERT INTO kosar(termek_id, fh_id, mennyiseg) VALUES ($termek_id, $fh_id, $menny)";
-      $this->sqlQuery($sql);
+        $sql = "INSERT INTO kosar(termek_id, fh_id, mennyiseg) VALUES ($termek_id, $fh_id, $menny)";
+        parent::sqlQuery($sql);
+      } else {
+        echo "<script>alert('Bejelentkezés szükséges a kosárba helyezéshez!');</script>";
+      }
     }
-  }
-  public function deleteFromCart(){
 
   }
   public function displayCartInTable()
   {
-    echo "<table class='table table-hover table-bordered border-info table-responsive'>
-            <tr>
-                <th>
-                </th>
-                <th>
-                    Termék neve
-                </th>
-                <th>
-                    Ár
-                </th>
-                <th>
-                    Mennyiség
-                </th>
-                <th>
-                    Műveletek
-                </th>
-            </tr>";
+    echo "<table class='table table-hover table-bordered border-info table-responsive kosar_tablazat'>
+    <tr>
+        <th>
+        </th>
+        <th>
+            Termék neve
+        </th>
+        <th>
+            Ár
+        </th>
+        <th>
+            Mennyiség
+        </th>
+        <th>
+            Műveletek
+        </th>
+    </tr>";
+    $sql = "SELECT k.id, k.termek_id, CONCAT(m.megnevezes,' ', t.megn) AS nev, k.mennyiseg, t.ar
+      FROM kosar AS k
+      JOIN termekek AS t
+      ON t.id = k.termek_id
+      JOIN markak AS m
+      ON m.id=t.marka_id
+      WHERE k.fh_id = {$_SESSION['fid']}";
 
-      $sql = "SELECT k.id, k.termek_id, CONCAT(m.megnevezes,' ', t.megn) AS nev, k.mennyiseg, t.ar
-              FROM kosar AS k
-              JOIN termekek AS t
-              ON t.id = k.termek_id
-              JOIN markak AS m
-              ON m.id=t.marka_id
-              WHERE k.fh_id = {$_SESSION['fid']}";
+    $termekek = parent::sqlAssoc($sql);
+    //print_r($termekek);
 
-      $termekek = $this->sqlAssoc($sql);
-      print_r($termekek);
+    if (empty($termekek)) {
+      echo "<h1>A kosár üres</h1>";
+    } else {
+      $sorszam = 0;
       foreach ($termekek as $termek) {
+        $sorszam++;
         $ar = $termek['ar'] * $termek['mennyiseg'];
-        echo "<tr>
-                <td>{$termek['id']}</td>
-                <td>{$termek['nev']}</td>
-                <td>$ar Ft</td>
-                <td><button id='{$termek['mennyiseg']}' onclick='menny_csokk(event)'>-</button> {$termek['mennyiseg']} db <button id='{$termek['termek_id']}' onclick='menny_nov({$termek['termek_id']})'>+</button></td>
-                <td><button id='{$termek['termek_id']}'>Töröl</button></td>
-              </tr>";
+        echo "
+      <tr>
+        <td>{$sorszam}</td>
+        <td>{$termek['nev']}</td>
+        <td class='w-25'>";
+        echo number_format($ar, 0, '', ' ');
+        echo " Ft</td>
+        <td class='w-25'><button class='csokk' value='{$termek['id']}'>-</button>
+         {$termek['mennyiseg']} db 
+        <button class='nov' value='{$termek['id']}'>+</button></td>
+        <td><button class='torol' value='{$termek['id']}'>Töröl</button></td>
+      </tr>";
       }
-    echo "</table>";
-  echo "
-  <script>
-    function menny_csokk(event){
-      var button = event.target;
-      var m = button.getAttribute('id');
-      var uj_m = m - 1;
-      console.log(uj_m);
+      echo "
+    </table>
+    ";
     }
-  </script>";
 
   }
-
 }

@@ -11,7 +11,6 @@
     <?php $webshop->headInsert(); ?>
 </head>
 <body>
-    <div class="background-image">
         <?php
         $webshop->navbarInsert();
         ?>
@@ -31,7 +30,7 @@
                             $_SESSION['termekId'] = $_GET['id'];
                             $webshop->productInsert($_GET['id']);
                             
-                            echo $_POST['kategoria_id'].", ".$_SESSION['termekId'];
+                            //echo $_POST['kategoria_id'].", ".$_SESSION['termekId'];
                             print_r($_POST);
                             $cart->addToCart();
                         ?>
@@ -39,7 +38,7 @@
                 </div>
             </div>
         </div>
-    </div>
+
     <footer class="footer">
         <?php $webshop->footerInsert(); ?>
     </footer>

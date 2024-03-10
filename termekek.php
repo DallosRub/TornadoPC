@@ -13,7 +13,6 @@
 </head>
 
 <body>
-    <div class="background-image">
         <?php
         $webshop->navbarInsert();
         ?>
@@ -44,14 +43,14 @@
                                 $webshop->productsInsert($p, $_POST['kategoria_id']);
                             }
                         }
-                        print_r($_POST);
+                        echo"Post: ";print_r($_POST);
                         $cart->addToCart();
                         ?>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
+
     <footer class="footer">
         <?php $webshop->footerInsert(); ?>
     </footer>

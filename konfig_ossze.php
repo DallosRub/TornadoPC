@@ -1,71 +1,55 @@
 <?php
 session_start();
 require_once "fuggvenyek.php";
-$db = new DB();
-
+require_once "adatbazis.php";
+$db_kapcs = new DB();
+$db = $db_kapcs;
 $webshop = new Webshop();
 
-//print_r($_POST);
+print_r($_POST);
 $sql = "SELECT id FROM felhasznalok WHERE nev='{$_SESSION['fnev']}'";
-$fhid = $db->sqlAssoc($sql);
-
+$fhidk = $webshop->sqlQuery($sql);
+$fhid = $fhidk->fetchAll(PDO::FETCH_ASSOC);
 $sql = "SELECT MAX(id) AS max FROM konfig_id";
-$kid = $db->sqlAssoc($sql);
+$kidk = $webshop->sqlQuery($sql);
+$kid = $kidk->fetchAll(PDO::FETCH_ASSOC);
+$valami = $kid[0]['max'];
 
-print_r($fhid[0]['id']);
+function hozzadd()
+{
+    $webshop = new Webshop();
+
+    $sql = "INSERT INTO konfig_id (felh_id) VALUES({$fhid[0]['id']})";
+    $webshop->sqlQuery($sql);
+    for ($i = 0; $i < count($_POST); $i++) {
+        $sql = "INSERT INTO konfig (termek_id, konf_id) VALUES({$_POST[$i]}, {$valami})";
+        //print_R($sql);
+        $webshop->sqlQuery($sql);
+    }
+}
+
+
+/*if (!isset($_POST["ell"])) {
+    $sql="INSERT INTO konfig_id (felh_id) VALUES({$fhid[0]['id']})";
+    $webshop->sqlQuery($sql);
+    for ($i=0; $i < count($_POST); $i++) { 
+        $sql="INSERT INTO konfig (termek_id, konf_id) VALUES({$_POST[$i]}, {$valami})";
+        //print_R($sql);
+        $webshop->sqlQuery($sql);
+    
+    }
+    $_POST["ell"]=0;
+}*/
+
+
+
+
+/*print_r($fhid[0]['id']);
 print_r("Abalencsik");
 print_r($_POST);
-print_r($kid);
-$valami = $kid[0]['max'];
-/*$konfig="
-<div class='card'>
-<div class='card-body'>
-    <h5 class='card-title' style='margin-bottom: 0px;'>Bencs</h5>
-        <table style=''>
-            <tr>
-                <td>Processzor:</td>
-                <td>{$_POST['Processzor']}</td>
-            </tr>
-            <tr>
-                <td>Videókártya:</td>
-                <td>{$_POST['Videókártya']}</td>
-            </tr>
-            <tr>
-                <td>Alaplap:</td>
-                <td>{$_POST['Alaplap']}</td>
-            </tr>
-            <tr>
-                <td>Memória:</t d>
-                <td>{$_POST['Memória']}</td>
-            </tr>
-            <tr>
-                <td>Merevlemez:</td>
-                <td>{$_POST['Merevlemez']}</td>
-            </tr>
-            <tr>
-                <td>SSD:</td>
-                <td>{$_POST['SSD']}</td>
-            </tr>
-            <tr>
-                <td>Tápegység:</td>
-                <td>{$_POST['Tápegység']}</td>
-            </tr>
-            <tr>
-                <td>Processzor hűtő:</td>
-                <td>{$_POST['Processzor_hűtő']}</td>
-            </tr>
-            <tr>
-                <td>Számítógépház:</td>
-                <td>{$_POST['Számítógépház']}</td>
-            </tr>
-        </table>
-    <img src='like.png' alt='' style='display: block; float: inline-start;'>
-    <img src='dislike.png' alt='' style='display: block; float: inline-end;'>
-</div>
-</div>
-";        
-$sql="INSERT INTO konfig(felh_id, konfig) VALUES ({$fhid[0]}, '$konfig')";
-$db->exec($sql);*/
+print_r($kid);*/
+
+
 
 
 ?>
@@ -112,7 +96,8 @@ $db->exec($sql);*/
                 <?php
                 $sql = 'SELECT * FROM termek_kategoriak WHERE kat_id=1';
 
-                $kategoriak = $db->sqlAssoc($sql);
+                $stmtKat = $webshop->sqlQuery($sql);
+                $kategoriak = $stmtKat->fetchAll(PDO::FETCH_ASSOC);
                 $kat_db = 0;
                 foreach ($kategoriak as $kategoria) {
                     $kat_db++;
@@ -121,7 +106,8 @@ $db->exec($sql);*/
                 $sql = "SELECT t.id, t.kategoria_id, CONCAT(m.megnevezes,' - ', t.megn) AS nev 
                                 FROM termekek AS t
                                 INNER JOIN markak AS m ON m.id=t.marka_id";
-                $termekek = $db->sqlAssoc($sql);
+                $term = $webshop->sqlQuery($sql);
+                $termekek = $term->fetchAll(PDO::FETCH_ASSOC);
 
                 $szam = 0;
                 foreach ($kategoriak as $kategoria) {
@@ -147,15 +133,18 @@ $db->exec($sql);*/
                 }
                 echo "</td>";
 
+                /*if (!isset($_POST["ell"])) {
+                    $sql="INSERT INTO konfig_id (felh_id) VALUES({$fhid[0]['id']})";
+                    $webshop->sqlQuery($sql);
+                    for ($i=0; $i < count($_POST); $i++) { 
+                        $sql="INSERT INTO konfig (termek_id, konf_id) VALUES({$_POST[$i]}, {$valami})";
+                        //print_R($sql);
+                        $webshop->sqlQuery($sql);
+                    
+                    }
+                }*/
 
 
-                $sql = "INSERT INTO konfig_id (felh_id) VALUES({$fhid[0]['id']})";
-                $db->sqlQuery($sql);
-                for ($i = 0; $i < count($_POST); $i++) {
-                    $sql = "INSERT INTO konfig (termek_id, konf_id) VALUES({$_POST[$i]}, {$valami})";
-                    //print_R($sql);
-                    $db->sqlQuery($sql);
-                }
 
                 ?>
 
@@ -163,8 +152,9 @@ $db->exec($sql);*/
             </table>
 
     </div>
-    <input type="submit" value="Beküldés">
+    <input type="submit" value="Beküldés" onclick="document.write('<?php hozzadd(); ?>')">
     </form>
+
     </div>
     </div>
 

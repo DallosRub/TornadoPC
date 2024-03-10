@@ -12,7 +12,6 @@
 </head>
 
 <body>
-    <div class="background-image">
         <?php
         $webshop->navbarInsert();
         ?>
@@ -26,27 +25,27 @@
                 </div>
                 <div class="col-lg-9">
                     <div class="content">
+
                         <?php
-                            $webshop->categoriesInsert();
-                            if (isset($_POST['kategoria_id'])) {
-                                header('Location: termekek.php');
-                            }
+                        echo "Session: ";
+                        print_r($_SESSION);
+                        echo "Post: ";
+                        print_r($_POST);
+                        $webshop->categoriesInsert();
+
+                        if (isset($_POST['kategoria_id'])) {
+                            header('Location: termekek.php');
+                        }
                         ?>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-    <footer class="footer">
-        <?php $webshop->footerInsert(); ?>
-    </footer>
-    <script>
-     /* function menny_csokk(id){
-        id_itt = id;
-        id_itt--;
-        console.log(id_itt);
-      }*/
-  </script>
+        
+    <!--<footer class="footer">
+        <?php
+        $webshop->footerInsert(); ?>
+    </footer>-->
 </body>
 
 </html>
